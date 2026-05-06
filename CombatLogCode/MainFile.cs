@@ -11,12 +11,15 @@ public partial class MainFile : Node
     public static bool IsMainThread;
     public const string ModId = "Sts2CombatLog";
 
+    public static int CombatCounter = 0;
+
     public static MegaCrit.Sts2.Core.Logging.Logger Logger { get; } = new(ModId, MegaCrit.Sts2.Core.Logging.LogType.Generic);
 
     public static void Initialize()
     {
         IsMainThread = true;
 
+        // TODO: Remove BaseLib dependency by copying Utils.Patching.AsyncMethodCall method to this repo.
         Harmony harmony = new(ModId);
 
         var assembly = Assembly.GetExecutingAssembly();

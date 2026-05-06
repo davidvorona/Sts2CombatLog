@@ -12,6 +12,7 @@ public partial class NCombatLogWindow : Window
 
     public enum CombatEntryType
     {
+        Start,
         CardPlay,
         Damage,
         Block,
@@ -225,6 +226,8 @@ public partial class NCombatLogWindow : Window
             var color = GetColorForLine(type);
             if (color is not null) label.PushColor(color.Value);
 
+            if (type == CombatEntryType.Start) label.Newline();
+
             label.AddText(line);
             label.Newline();
 
@@ -237,6 +240,7 @@ public partial class NCombatLogWindow : Window
             CombatEntryType.Damage => DamageColor,
             CombatEntryType.Block => BlockColor,
             CombatEntryType.Power => PowerColor,
+            CombatEntryType.Start => null,
             _ => null
         };
     }
