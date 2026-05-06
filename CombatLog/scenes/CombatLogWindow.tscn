@@ -1,0 +1,44 @@
+[gd_scene load_steps=4 format=3 uid="uid://cv400hm6hsc1c"]
+
+[ext_resource type="Script" path="res://CombatLogCode/ModScenes/NCombatLogWindow.cs" id="1_ms3l3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_scroll"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_log"]
+
+[node name="CombatLogWindow" type="Window"]
+title = "Combat Log"
+initial_position = 0
+size = Vector2i(600, 400)
+current_screen = 0
+transient = true
+min_size = Vector2i(360, 66)
+accessibility_name = "Slay the Spire 2 Combat Log"
+script = ExtResource("1_ms3l3")
+
+[node name="MainVBox" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Scroll" type="ScrollContainer" parent="MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_scroll")
+horizontal_scroll_mode = 0
+
+[node name="Log" type="RichTextLabel" parent="MainVBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 2
+mouse_filter = 1
+theme_override_font_sizes/normal_font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxEmpty_log")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_log")
+text = "Combat Log"
+fit_content = true
+scroll_active = false
+selection_enabled = true
