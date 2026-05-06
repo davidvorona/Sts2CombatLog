@@ -56,6 +56,7 @@
         <None Include="CombatLog\scenes\CombatLogWindow.tscn" />
         <None Condition="Exists('Directory.Build.props')" Include="Directory.Build.props" />
         <None Include=".gitignore" />
+        <None Include="README.md" />
         <None Include="Sts2CombatLog.json" />
         <None Include="project.godot" />
         <None Include="CombatLog/**" />
