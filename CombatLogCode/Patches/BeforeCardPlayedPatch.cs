@@ -1,10 +1,10 @@
-﻿using BaseLib.Utils.Patching;
-using HarmonyLib;
+﻿using HarmonyLib;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Hooks;
 using System.Reflection;
 using System.Reflection.Emit;
 using Sts2CombatLog.CombatLogCode.ModScenes;
+using Sts2CombatLog.CombatLogCode.Utils;
 
 namespace Sts2CombatLog.CombatLogCode.Patches
 {

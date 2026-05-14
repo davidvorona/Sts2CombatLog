@@ -19,7 +19,6 @@ public partial class MainFile : Node
     {
         IsMainThread = true;
 
-        // TODO: Remove BaseLib dependency by copying Utils.Patching.AsyncMethodCall method to this repo.
         Harmony harmony = new(ModId);
 
         var assembly = Assembly.GetExecutingAssembly();
