@@ -3,7 +3,7 @@
   "name": "Sts2CombatLog",
   "author": "Vijuhas",
   "description": "Slay the Spire 2 mod that displays a combat log.",
-  "version": "v0.2.0",
+  "version": "v1.0.0",
   "has_pck": true,
   "has_dll": true,
   "dependencies": [],
