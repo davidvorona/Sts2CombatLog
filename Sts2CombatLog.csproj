@@ -9,6 +9,7 @@
         <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
         <PathMap>$(AppOutputBase)=.\</PathMap>
         <GodotDisabledSourceGenerators>GodotPluginsInitializer</GodotDisabledSourceGenerators>
+        <Configurations>Debug;ExportDebug;ExportRelease;ExportReleaseUnifiedSave</Configurations>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -60,6 +61,14 @@
         <None Include="project.godot" />
         <None Include="CombatLog/**" />
     </ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)' != 'ExportReleaseUnifiedSave'">
+		<Compile Remove="CombatLogCode\Patches\IsRunningModdedPatch.cs" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)' != 'ExportReleaseUnifiedSave'">
+		<None Include="CombatLogCode\Patches\IsRunningModdedPatch.cs" />
+	</ItemGroup>
     
     <Target Name="CheckDependencyPaths">
         <Error Text=" Slay the Spire 2 data not found at path '$(Sts2DataDir)'" Condition="'$(Sts2DataDir)' == '' or !Exists('$(Sts2DataDir)')" />
@@ -67,13 +76,13 @@
 
     <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent">
         <Message Text="Copying .dll and manifest to mods folder." Importance="high" />
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
+		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
         <Copy SourceFiles="$(AssemblyName).json" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
     </Target>
 
     <Target Name="CopyQuickPck" AfterTargets="PackPck" Condition="Exists('$(PckPackerOutputPath)') And '$(PckPackerSkipped)' != 'true'">
         <Message Text="Copying quick .pck to mods folder." Importance="high" />
-        <Copy SourceFiles="$(PckPackerOutputPath)" DestinationFolder="$(ModsPath)/$(MSBuildProjectName)" />
+		<Copy SourceFiles="$(PckPackerOutputPath)" DestinationFolder="$(ModsPath)/$(MSBuildProjectName)" />
     </Target>
 
     <Target Name="NeedGodotForPublish" BeforeTargets="Publish">
