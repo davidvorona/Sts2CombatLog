@@ -1,10 +1,10 @@
 ﻿using HarmonyLib;
 using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.Models;
-using System.Reflection;
-using System.Reflection.Emit;
 using Sts2CombatLog.CombatLogCode.ModScenes;
 using Sts2CombatLog.CombatLogCode.Utils;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Sts2CombatLog.CombatLogCode.Patches
 {
@@ -20,13 +20,28 @@ namespace Sts2CombatLog.CombatLogCode.Patches
 
         private static async Task BeforeAfterPowerAmountChangedHook(PowerModel power, decimal amount, CardModel? cardSource)
         {
-            string powerChangeStr = power.Id.ToString() + " on " + power.Owner.Name;
-            if (amount > 0) powerChangeStr += " increased by ";
-            else if (amount < 0) powerChangeStr += " decreased by ";
-            powerChangeStr += Math.Abs(amount) + " to " + power.Amount;
+            var powerId = power.Id?.Entry ?? power.GetType().Name;
+            var powerTitle = power.Title?.GetFormattedText() ?? powerId;
+
+            if (power.Amount == -1)
+            {
+                NCombatLogWindow.AddLog(powerTitle + " applied to " + power.Owner.Name + ".", NCombatLogWindow.CombatEntryType.Power);
+                return;
+            }
+
+            string powerChangeStr = powerTitle + " on " + power.Owner.Name;
+            if (amount > 0)
+            {
+                powerChangeStr += " increased to " + power.Amount + " (+" + amount + ")";
+            }
+            else if (amount < 0)
+            {
+                powerChangeStr += " decreased to " + power.Amount + " (" + amount + ")";
+            }
             if (cardSource != null)
             {
-                powerChangeStr += " [" + cardSource.Id + "]";
+                var cardName = cardSource.Title ?? cardSource.GetType().Name;
+                powerChangeStr += " [" + cardName + "]";
             }
             NCombatLogWindow.AddLog(powerChangeStr + ".", NCombatLogWindow.CombatEntryType.Power);
         }

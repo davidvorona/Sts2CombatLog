@@ -2,10 +2,10 @@
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.Models;
-using System.Reflection;
-using System.Reflection.Emit;
 using Sts2CombatLog.CombatLogCode.ModScenes;
 using Sts2CombatLog.CombatLogCode.Utils;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Sts2CombatLog.CombatLogCode.Patches
 {
@@ -28,7 +28,8 @@ namespace Sts2CombatLog.CombatLogCode.Patches
             }
             if (cardSource != null)
             {
-                damageLogStr += " [" + cardSource.Id + "]";
+                var cardName = cardSource.Title ?? cardSource.GetType().Name;
+                damageLogStr += " [" + cardName + "]";
             }
             NCombatLogWindow.AddLog(damageLogStr + ".", NCombatLogWindow.CombatEntryType.Damage);
         }

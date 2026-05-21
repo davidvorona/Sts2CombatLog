@@ -1,12 +1,12 @@
-﻿using System.Collections.Immutable;
-using Godot;
+﻿using Godot;
+using System.Collections.Immutable;
 
 namespace Sts2CombatLog.CombatLogCode.ModScenes;
 
 [GlobalClass]
 public partial class NCombatLogWindow : Window
 {
-    private static readonly LimitedLog _log = new(256);
+    private static readonly LimitedLog _log = new(512);
     private static readonly Lock _logLock = new();
     private static ImmutableList<NCombatLogWindow> _listeners = ImmutableList<NCombatLogWindow>.Empty;
 
@@ -16,7 +16,9 @@ public partial class NCombatLogWindow : Window
         CardPlay,
         Damage,
         Block,
-        Power
+        Power,
+        Potion,
+        Misc
     }
 
     public static bool IsOpen => _listeners.Count > 0;
@@ -68,6 +70,8 @@ public partial class NCombatLogWindow : Window
         _scrollContainer = GetNode<ScrollContainer>("MainVBox/Scroll");
         _logLabel = GetNode<RichTextLabel>("MainVBox/Scroll/Log");
 
+        _logLabel?.AddThemeFontOverride("normal_font", ResourceLoader.Load<Font>("res://fonts/source_code_pro_medium.ttf"));
+
         CloseRequested += QueueFree;
 
         var scrollbar = _scrollContainer.GetVScrollBar();
@@ -75,6 +79,7 @@ public partial class NCombatLogWindow : Window
 
         _isFollowingLog = true;
 
+        SetFontSize(_currentFontSize);
         ApplyMinSizeForScale();
 
         ProcessMode = ProcessModeEnum.Always;
@@ -97,6 +102,23 @@ public partial class NCombatLogWindow : Window
     {
         float s = ContentScaleFactor > 0f ? ContentScaleFactor : 1f;
         MinSize = new Vector2I((int)(360 * s), (int)(66 * s));
+    }
+
+    private void ApplyChromeFontSize(int size)
+    {
+        string[] fontTypes = [
+           "font_size",
+            "normal_font_size",
+            "bold_font_size",
+            "italics_font_size",
+            "bold_italics_font_size",
+            "mono_font_size"
+       ];
+
+        foreach (var fontType in fontTypes)
+        {
+            _logLabel?.AddThemeFontSizeOverride(fontType, size);
+        }
     }
 
     public void Refresh()
@@ -185,7 +207,18 @@ public partial class NCombatLogWindow : Window
         if (@event is not InputEventMouseButton { CtrlPressed: true } mouseEvent) return;
         if (mouseEvent.ButtonIndex != MouseButton.WheelUp && mouseEvent.ButtonIndex != MouseButton.WheelDown) return;
         if (!mouseEvent.IsReleased()) return; // Don't double-count: pressed, then released
+        ChangeFontSize(mouseEvent.ButtonIndex == MouseButton.WheelUp ? 1 : -1);
         GetViewport().SetInputAsHandled();
+    }
+
+    private void ChangeFontSize(int deltaPx) =>
+        SetFontSize(Math.Clamp(14 + deltaPx, 8, 48));
+
+    private void SetFontSize(int newSize)
+    {
+        ApplyChromeFontSize(newSize);
+        _currentFontSize = newSize;
+        ScrollToBottomAsync();
     }
 
     private class LimitedLog : Queue<(string, CombatEntryType)>
@@ -195,10 +228,12 @@ public partial class NCombatLogWindow : Window
         private static readonly Color DamageColor = Color.FromHtml("#ff6d6d");
         private static readonly Color BlockColor = Color.FromHtml("#7fdfff");
         private static readonly Color PowerColor = Color.FromHtml("#ffb86c");
+        private static readonly Color PotionColor = Color.FromHtml("80288f");
 
         public LimitedLog(int limit) : base(limit)
         {
             Limit = limit;
+            Enqueue("Combat log initialized.", CombatEntryType.Misc);
         }
 
         public void SetLimit(int limit)
@@ -240,7 +275,9 @@ public partial class NCombatLogWindow : Window
             CombatEntryType.Damage => DamageColor,
             CombatEntryType.Block => BlockColor,
             CombatEntryType.Power => PowerColor,
+            CombatEntryType.Potion => PotionColor,
             CombatEntryType.Start => null,
+            CombatEntryType.Misc => null,
             _ => null
         };
     }
