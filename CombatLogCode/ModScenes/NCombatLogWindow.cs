@@ -9,6 +9,7 @@ public partial class NCombatLogWindow : Window
     private static readonly LimitedLog _log = new(512);
     private static readonly Lock _logLock = new();
     private static ImmutableList<NCombatLogWindow> _listeners = ImmutableList<NCombatLogWindow>.Empty;
+    private static int BaseFontSize = 14;
 
     public enum CombatEntryType
     {
@@ -61,8 +62,10 @@ public partial class NCombatLogWindow : Window
 
     public override void _Ready()
     {
-       // Fix hilarious issue of resting causing the log window to fade to gray
-       OwnWorld3D = true;
+        // Fix hilarious issue of resting causing the log window to fade to gray
+        OwnWorld3D = true;
+        // Override the default scale factor, which does not support high-DPI displays
+        ContentScaleFactor = GetScaleFactor();
 
         base._Ready();
         lock (_logLock) EnsureLogLimit();
@@ -71,6 +74,7 @@ public partial class NCombatLogWindow : Window
         _logLabel = GetNode<RichTextLabel>("MainVBox/Scroll/Log");
 
         _logLabel?.AddThemeFontOverride("normal_font", ResourceLoader.Load<Font>("res://fonts/source_code_pro_medium.ttf"));
+        _currentFontSize = BaseFontSize * (int)ContentScaleFactor;
 
         CloseRequested += QueueFree;
 
@@ -82,8 +86,7 @@ public partial class NCombatLogWindow : Window
         SetFontSize(_currentFontSize);
         ApplyMinSizeForScale();
 
-        ProcessMode = ProcessModeEnum.Always;
-    }
+        ProcessMode = ProcessModeEnum.Always;    }
 
     public override void _Process(double delta)
     {
@@ -96,6 +99,17 @@ public partial class NCombatLogWindow : Window
         _timeSinceRefresh = 0;
         _needsRefresh = false;
         Refresh();
+    }
+
+    private static float GetScaleFactor()
+    {
+        var screen = DisplayServer.WindowGetCurrentScreen();
+        var scaleFactor = DisplayServer.ScreenGetScale(screen);
+        var dpi = DisplayServer.ScreenGetDpi(screen);
+        // Windows doesn't report scale factor, so the value defaults to 1.0 even on high-DPI displays.
+        // We can compensate by checking the DPI and doubling the scale factor if it's above the standard 96 DPI.
+        if (scaleFactor == 1f && dpi > 96) scaleFactor *= 2;
+        return scaleFactor;
     }
 
     private void ApplyMinSizeForScale()
@@ -212,7 +226,7 @@ public partial class NCombatLogWindow : Window
     }
 
     private void ChangeFontSize(int deltaPx) =>
-        SetFontSize(Math.Clamp(14 + deltaPx, 8, 48));
+        SetFontSize(Math.Clamp(_currentFontSize + deltaPx, 8, 48));
 
     private void SetFontSize(int newSize)
     {
@@ -233,7 +247,7 @@ public partial class NCombatLogWindow : Window
         public LimitedLog(int limit) : base(limit)
         {
             Limit = limit;
-            Enqueue("Combat log initialized.", CombatEntryType.Misc);
+            Enqueue("Combat log initialized. [Scale: x" + GetScaleFactor() + "]", CombatEntryType.Misc);
         }
 
         public void SetLimit(int limit)
