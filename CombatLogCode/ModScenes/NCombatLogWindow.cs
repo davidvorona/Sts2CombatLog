@@ -86,7 +86,8 @@ public partial class NCombatLogWindow : Window
         SetFontSize(_currentFontSize);
         ApplyMinSizeForScale();
 
-        ProcessMode = ProcessModeEnum.Always;    }
+        ProcessMode = ProcessModeEnum.Always;
+    }
 
     public override void _Process(double delta)
     {
